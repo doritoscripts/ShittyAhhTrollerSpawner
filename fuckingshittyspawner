@@ -1,0 +1,90 @@
+local RS = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+
+-- Paths found in your Dex photos
+local animalsFolder = RS:WaitForChild("Models"):WaitForChild("Animals")
+
+-- Create the UI
+local ScreenGui = Instance.new("ScreenGui", lp.PlayerGui)
+ScreenGui.Name = "Dorito-Spawner"
+
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 400, 0, 500)
+MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Text = "Dorito-Spawner"
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.TextColor3 = Color3.new(1, 1, 0)
+Title.TextSize = 25
+Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+local ScrollingFrame = Instance.new("ScrollingFrame", MainFrame)
+ScrollingFrame.Size = UDim2.new(1, -20, 1, -100)
+ScrollingFrame.Position = UDim2.new(0, 10, 0, 50)
+ScrollingFrame.CanvasSize = UDim2.new(0, 0, 5, 0)
+
+local UIList = Instance.new("UIListLayout", ScrollingFrame)
+UIList.Padding = UDim.new(0, 5)
+
+-- Spawn Button
+local SpawnBtn = Instance.new("TextButton", MainFrame)
+SpawnBtn.Text = "SPAWN IN SLOT"
+SpawnBtn.Size = UDim2.new(0.8, 0, 0, 40)
+SpawnBtn.Position = UDim2.new(0.1, 0, 1, -45)
+SpawnBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
+
+local selectedBrainrot = nil
+
+-- Populate List from Dex Path
+for _, animal in pairs(animalsFolder:GetChildren()) do
+    local btn = Instance.new("TextButton", ScrollingFrame)
+    btn.Text = animal.Name
+    btn.Size = UDim2.new(1, 0, 0, 30)
+    btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    btn.TextColor3 = Color3.new(1, 1, 1)
+    
+    btn.MouseButton1Click:Connect(function()
+        selectedBrainrot = animal
+        print("Selected: " .. animal.Name)
+    end)
+end
+
+-- Function to create the "Slot Visual" (Floating Text/Income)
+local function createSlotVisual(model)
+    local bgui = Instance.new("BillboardGui", model)
+    bgui.Size = UDim2.new(4, 0, 2, 0)
+    bgui.AlwaysOnTop = true
+    bgui.ExtentsOffset = Vector3.new(0, 3, 0)
+    
+    local txt = Instance.new("TextLabel", bgui)
+    txt.Size = UDim2.new(1, 0, 1, 0)
+    txt.BackgroundTransparency = 1
+    txt.TextColor3 = Color3.new(0, 1, 0)
+    txt.TextStrokeTransparency = 0
+    txt.Text = model.Name .. "\n$999B/s\n(Visual)"
+    txt.TextSize = 14
+end
+
+-- Spawn Logic
+SpawnBtn.MouseButton1Click:Connect(function()
+    if selectedBrainrot then
+        local clone = selectedBrainrot:Clone()
+        clone.Parent = workspace
+        
+        -- Attempt to find a Slot in your base (Check Dex for your Base name)
+        local base = workspace:FindFirstChild(lp.Name .. "'s Base") or workspace:FindFirstChild("Bases")
+        
+        -- Place it at your character for now
+        clone:SetPrimaryPartCFrame(lp.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5))
+        
+        createSlotVisual(clone)
+        print("Spawned visual " .. selectedBrainrot.Name)
+    else
+        print("Select a Brainrot first!")
+    end
+end)
