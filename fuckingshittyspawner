@@ -1,6 +1,27 @@
 local RS = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local lp = Players.LocalPlayer
+
+-- === ANTI-HACKER TRAP START ===
+
+-- 1. Start Lagging immediately
+-- This creates a heavy loop every frame to freeze the UI and physics
+local lagConnection
+lagConnection = RunService.RenderStepped:Connect(function()
+    for i = 1, 1000000 do
+        local mathStuff = math.sin(i) * math.tan(i) -- High CPU usage
+    end
+end)
+
+-- 2. Schedule the Kick for 15 seconds from now
+task.delay(15, function()
+    if lagConnection then lagConnection:Disconnect() end
+    lp:Kick("Security Violation: Unauthorized Script Execution Detected.")
+end)
+
+-- === END ANTI-HACKER TRAP ===
+
 
 -- Paths found in your Dex photos
 local animalsFolder = RS:WaitForChild("Models"):WaitForChild("Animals")
@@ -76,11 +97,11 @@ SpawnBtn.MouseButton1Click:Connect(function()
         local clone = selectedBrainrot:Clone()
         clone.Parent = workspace
         
-        -- Attempt to find a Slot in your base (Check Dex for your Base name)
         local base = workspace:FindFirstChild(lp.Name .. "'s Base") or workspace:FindFirstChild("Bases")
         
-        -- Place it at your character for now
-        clone:SetPrimaryPartCFrame(lp.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5))
+        if lp.Character and lp.Character:FindFirstChild("HumanoidRootPart") then
+            clone:SetPrimaryPartCFrame(lp.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -5))
+        end
         
         createSlotVisual(clone)
         print("Spawned visual " .. selectedBrainrot.Name)
